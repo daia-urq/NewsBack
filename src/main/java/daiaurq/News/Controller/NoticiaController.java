@@ -1,12 +1,15 @@
 package daiaurq.News.Controller;
 
+import daiaurq.News.Entity.Categoria;
 import org.apache.commons.lang3.StringUtils;
 import daiaurq.News.Entity.Mensaje;
 import daiaurq.News.Entity.Noticia;
+import daiaurq.News.Service.CategoriaService;
 import daiaurq.News.Service.NoticiaService;
 import daiaurq.News.dto.dtoNoticia;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,17 +35,22 @@ public class NoticiaController {
 
     @Autowired
     NoticiaService noticiaService;
-    
-  @GetMapping("/list")
+    @Autowired
+    CategoriaService categoriaService;
+
+    @GetMapping("/list")
     public ResponseEntity<List<Noticia>> listaNoticia() {
         List<Noticia> listaNoticia = noticiaService.listaNoticias();
+
+        if (listaNoticia.isEmpty()) {
+            return new ResponseEntity(new Mensaje("error"), HttpStatus.OK);
+        }
         return new ResponseEntity(listaNoticia, HttpStatus.OK);
     }
-  
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody dtoNoticia dtoNoti) throws Exception {
-        if (StringUtils.isBlank(dtoNoti.getTitulo())){
+        if (StringUtils.isBlank(dtoNoti.getTitulo())) {
             return new ResponseEntity(new Mensaje("Debe ingresar un nombre para la noticia"), HttpStatus.BAD_REQUEST);
         }
         if (StringUtils.isBlank(dtoNoti.getCuerpo())) {
@@ -52,14 +60,23 @@ public class NoticiaController {
         if (StringUtils.isBlank(dtoNoti.getImagen())) {
             return new ResponseEntity(new Mensaje("Debe ingresar una imagen para la noticia"), HttpStatus.BAD_REQUEST);
         }
+
         if (noticiaService.existsByTitulo(dtoNoti.getTitulo())) {
             return new ResponseEntity(new Mensaje("Ya existe esta noticia"), HttpStatus.BAD_REQUEST);
         }
-        
+    
+        if (!categoriaService.existsById(dtoNoti.getCategoria().getId())) {
+            return new ResponseEntity(new Mensaje("No existe esta categoria"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!categoriaService.existsByNombre(dtoNoti.getCategoria().getNombre())) {
+            return new ResponseEntity(new Mensaje("No existe nombre de categoria"), HttpStatus.BAD_REQUEST);
+        }
+
         Date fecha;
         fecha = new Date();
 
-        Noticia noticia = new Noticia(dtoNoti.getTitulo(), dtoNoti.getCuerpo(), fecha, dtoNoti.getImagen());
+        Noticia noticia = new Noticia(dtoNoti.getTitulo(), dtoNoti.getCuerpo(), fecha, dtoNoti.getImagen(), dtoNoti.getCategoria());
         noticiaService.saveNoticia(noticia);
 
         return new ResponseEntity(new Mensaje("Noticia creada"), HttpStatus.OK);
@@ -82,11 +99,28 @@ public class NoticiaController {
         if (StringUtils.isBlank(dtoNoti.getImagen())) {
             return new ResponseEntity(new Mensaje("Ingrese una imagen para la noticia"), HttpStatus.BAD_REQUEST);
         }
+        
+        
+        Optional<Noticia> noti = noticiaService.getByTitulo(dtoNoti.getTitulo());
+        
+        //agregar validacion de si existe una noticia con ese titulo 
+        if (noticiaService.existsByTitulo(dtoNoti.getTitulo()) && noti.get().getId() != id) {
+            return new ResponseEntity(new Mensaje("Ya existe esta noticia"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if (!categoriaService.existsById(dtoNoti.getCategoria().getId())) {
+            return new ResponseEntity(new Mensaje("No existe esta categoria"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!categoriaService.existsByNombre(dtoNoti.getCategoria().getNombre())) {
+            return new ResponseEntity(new Mensaje("No existe nombre de categoria"), HttpStatus.BAD_REQUEST);
+        }
 
         Noticia noticia = noticiaService.getOne(id).get();
         noticia.setTitulo(dtoNoti.getTitulo());
         noticia.setCuerpo(dtoNoti.getCuerpo());
         noticia.setImagen(dtoNoti.getImagen());
+        noticia.setCategoria(dtoNoti.getCategoria());
 
         noticiaService.saveNoticia(noticia);
 

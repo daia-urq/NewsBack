@@ -19,7 +19,7 @@ public class NoticiaService {
     NoticiaRepository noticiaRepository;
     
     public List<Noticia> listaNoticias(){
-        return noticiaRepository.findAll();
+        return noticiaRepository.buscarNoticiasConCategoria();
     }
     
     public Optional<Noticia> getOne(int id){    

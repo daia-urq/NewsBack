@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import lombok.Getter;
@@ -28,15 +29,18 @@ public class Noticia {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaCreacion;
     private String imagen;
+    @ManyToOne
+    private Categoria categoria;
 
     public Noticia() {
     }
 
-    public Noticia(String titulo, String cuerpo, Date fechaCreacion, String imagen) {
+    public Noticia(String titulo, String cuerpo, Date fechaCreacion, String imagen, Categoria categoria) {
         this.titulo = titulo;
         this.cuerpo = cuerpo;
         this.fechaCreacion = fechaCreacion;
         this.imagen = imagen;
+        this.categoria = categoria;
     }
-  
+    
 }

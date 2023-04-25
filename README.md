@@ -1,3 +1,0 @@
-# NewsBack
-# NewsFront
-# NewsBack
