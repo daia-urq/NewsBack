@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class UsuarioService {
+    
     @Autowired
     UsuarioRepository usuarioRepository;
     
@@ -26,9 +27,19 @@ public class UsuarioService {
     
     public boolean existsByEmail(String email){
         return usuarioRepository.existsByEmail(email);
-    }    
+    }   
+    
     @Transactional
     public void save(Usuario usuario){
         usuarioRepository.save(usuario);
+    }
+    
+    @Transactional
+    public void delete(int id){
+        usuarioRepository.deleteById(id);
+    } 
+    
+    public boolean existsById(int id){
+       return usuarioRepository.existsById(id);
     }
 }

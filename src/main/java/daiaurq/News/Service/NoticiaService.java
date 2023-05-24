@@ -37,6 +37,7 @@ public class NoticiaService {
     public boolean existsById(int id){
        return noticiaRepository.existsById(id);
     }
+    
     public boolean existsByTitulo(String titulo){
         return noticiaRepository.existsByTitulo(titulo);                
     }    

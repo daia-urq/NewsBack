@@ -39,7 +39,7 @@
 //        }
 //        
 //        if (usuarioService.existsByNombreUsuario(dtoUsu.getNombreUsuario())) {
-//            return new ResponseEntity(new Mensaje("Ya existe este nombre de usuarioupdate/5"), HttpStatus.BAD_REQUEST);
+//            return new ResponseEntity(new Mensaje("Ya existe este nombre de usuario"), HttpStatus.BAD_REQUEST);
 //        }
 //                 
 //        Usuario usuario  = new Usuario(dtoUsu.getNombreUsuario(), dtoUsu.getPassword(),dtoUsu.getEmail());

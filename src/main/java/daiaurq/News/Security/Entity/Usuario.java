@@ -38,19 +38,23 @@ public class Usuario {
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuario_rol", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
-    private Set<Rol> roles  = new HashSet<>();    
+    private Set<Rol> roles  = new HashSet<>();   
+   
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaNacimiento;        
     
     @Temporal(javax.persistence.TemporalType.DATE)
+    
     private Date fechaAlta;
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String nombreUsuario, String email, String password ) {
+    public Usuario(String nombre, String nombreUsuario, String email, String password, Date fechaNacimiento) {        
         this.nombre = nombre;
         this.nombreUsuario = nombreUsuario;
         this.email = email;
-        this.password = password;      
+        this.password = password;
+        this.fechaNacimiento = fechaNacimiento;     
     }
-   
 }

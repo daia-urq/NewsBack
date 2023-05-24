@@ -18,6 +18,7 @@ public class dtoNoticia {
     private String titulo;
     @NotBlank
     private String cuerpo;
+    
     private Date fechaCreacion;
     @NotBlank
     private String imagen;

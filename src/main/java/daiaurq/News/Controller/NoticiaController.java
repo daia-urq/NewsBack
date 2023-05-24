@@ -1,6 +1,6 @@
 package daiaurq.News.Controller;
 
-import daiaurq.News.Entity.Categoria;
+
 import org.apache.commons.lang3.StringUtils;
 import daiaurq.News.Entity.Mensaje;
 import daiaurq.News.Entity.Noticia;
@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author daiau
  */
+
 @RestController
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 @RequestMapping("/noticia")
@@ -48,6 +50,7 @@ public class NoticiaController {
         return new ResponseEntity(listaNoticia, HttpStatus.OK);
     }
 
+    
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody dtoNoticia dtoNoti) throws Exception {
         if (StringUtils.isBlank(dtoNoti.getTitulo())) {
