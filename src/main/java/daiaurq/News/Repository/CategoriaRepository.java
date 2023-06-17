@@ -20,4 +20,6 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
     @Query("SELECT c FROM Categoria c WHERE NOT EXISTS (SELECT n FROM Noticia n WHERE n.categoria.id = c.id)")
     List<Categoria> findEmptyCategories();
 
+    @Query("SELECT c.nombre, COUNT(n.categoria.id) AS cantidadNoticias FROM Categoria c LEFT JOIN c.noticias n GROUP BY c.nombre")
+    List<?> findCantidadNoticiasByCategoria();
 }

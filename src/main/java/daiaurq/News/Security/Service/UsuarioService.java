@@ -42,4 +42,8 @@ public class UsuarioService {
     public boolean existsById(int id){
        return usuarioRepository.existsById(id);
     }
+    
+    public Usuario getOne(int id){
+        return usuarioRepository.getOne(id);
+    }
 }

@@ -40,6 +40,12 @@ public class CategoriaController {
         return new ResponseEntity(listaCategoria, HttpStatus.OK);
     }
 
+    @GetMapping("/cantidad")
+    public ResponseEntity<List<?>> cantidadNoticias() {
+        List<?> listaCategoria = categoriaService.findCantidadNoticiasByCategoria();
+        return new ResponseEntity(listaCategoria, HttpStatus.OK);
+    }
+    
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody dtoCategoria dtoCat) throws Exception {
         if (StringUtils.isBlank(dtoCat.getNombre())) {

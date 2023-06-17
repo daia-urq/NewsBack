@@ -46,5 +46,9 @@ public class CategoriaService {
     public List<Categoria> listaCategoriasVacias() {
         return categoriaRepository.findEmptyCategories();
     }   
+    
+    public List<?> findCantidadNoticiasByCategoria() {
+        return categoriaRepository.findCantidadNoticiasByCategoria();
+    }
 }
  
