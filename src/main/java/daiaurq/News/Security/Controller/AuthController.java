@@ -77,11 +77,11 @@ public class AuthController {
         Set<Rol> roles = new HashSet<>();
 
         if (nuevoUsuario.getRoles().contains("user")) {
-            roles.add(rolService.getByRolNombre(RolNombre.ROLE_USER).get());
+            roles.add(rolService.getByRolNombre(RolNombre.ROLE_USER));
         }
 
         if (nuevoUsuario.getRoles().contains("admin")) {
-            roles.add(rolService.getByRolNombre(RolNombre.ROLE_ADMIN).get());
+            roles.add(rolService.getByRolNombre(RolNombre.ROLE_ADMIN));
         }
 
         usuario.setFechaAlta(date);

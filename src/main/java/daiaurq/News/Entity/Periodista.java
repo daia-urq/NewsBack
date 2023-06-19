@@ -1,8 +1,11 @@
 package daiaurq.News.Entity;
 
 import daiaurq.News.Security.Entity.Usuario;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,23 +15,21 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Entity
+@Table(name = "periodistas")
 public class Periodista extends Usuario{
-    
-    private ArrayList<Noticia> cantidadNoticias;
-    private int sueldo;     
 
-    public Periodista(ArrayList<Noticia> cantidadNoticias, int sueldo) {
-        this.cantidadNoticias = cantidadNoticias;
-        this.sueldo = sueldo;
+    @OneToMany
+    private List<Noticia> noticias;
+    private int sueldo;  
+
+    public Periodista() {
     }
 
-    public Periodista(ArrayList<Noticia> cantidadNoticias, int sueldo, String nombre, String nombreUsuario, String email, String password, Date fechaNacimiento) {
+    public Periodista(List<Noticia> noticias, int sueldo, String nombre, String nombreUsuario, String email, String password, Date fechaNacimiento) {
         super(nombre, nombreUsuario, email, password, fechaNacimiento);
-        this.cantidadNoticias = cantidadNoticias;
+        this.noticias = noticias;
         this.sueldo = sueldo;
-    }
-
-   
-      
+    }   
     
 }

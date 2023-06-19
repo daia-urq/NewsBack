@@ -18,8 +18,12 @@ public class RolService {
     @Autowired
     RolRepository rolRepository;
     
-    public Optional<Rol> getByRolNombre(RolNombre rolNombre){
+    public Rol getByRolNombre(RolNombre rolNombre){
         return rolRepository.findByRolNombre(rolNombre);
+    }
+    
+    public boolean existsByRolNombre(String rolNombre){
+        return rolRepository.existsByRolNombre(rolNombre);
     }
     
     public void save(Rol rol){

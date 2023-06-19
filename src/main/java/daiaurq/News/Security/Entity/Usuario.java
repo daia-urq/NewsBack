@@ -36,6 +36,7 @@ public class Usuario {
     private String email;
     
     private String password;
+    
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuario_rol", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
     private Set<Rol> roles  = new HashSet<>();   
@@ -44,7 +45,6 @@ public class Usuario {
     private Date fechaNacimiento;        
     
     @Temporal(javax.persistence.TemporalType.DATE)
-    
     private Date fechaAlta;
 
     public Usuario() {
