@@ -4,6 +4,7 @@ import daiaurq.News.Entity.Mensaje;
 import daiaurq.News.Entity.Noticia;
 import daiaurq.News.Entity.Periodista;
 import daiaurq.News.Security.Entity.Rol;
+import daiaurq.News.Security.Entity.Usuario;
 import daiaurq.News.Security.Enums.RolNombre;
 import daiaurq.News.Security.Service.RolService;
 import daiaurq.News.Service.PeriodistaService;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -74,31 +77,85 @@ public class PeriodistaController {
         List<Noticia> noticias = new ArrayList<>();
         Date date = new Date();
 
-        Periodista periodista = new Periodista(noticias, dtoPerio.getSueldo(), dtoPerio.getNombre(),dtoPerio.getNombreUsuario(), dtoPerio.getEmail(), passwordEncoder.encode(dtoPerio.getPassword()), dtoPerio.getFechaNacimiento());
-        
-        Set<Rol> roles = new HashSet<>();    
-        
-         if (dtoPerio.getRoles().contains("periodista")) {
+        Periodista periodista = new Periodista(noticias, dtoPerio.getSueldo(), dtoPerio.getNombre(), dtoPerio.getNombreUsuario(), dtoPerio.getEmail(), passwordEncoder.encode(dtoPerio.getPassword()), dtoPerio.getFechaNacimiento());
+
+        Set<Rol> roles = new HashSet<>();
+
+        if (dtoPerio.getRoles().contains("periodista")) {
             roles.add(rolService.getByRolNombre(RolNombre.ROLE_PERIODISTA));
-        }        
-        
-        periodista.setFechaAlta(date);  
+        }
+
+        periodista.setFechaAlta(date);
         periodista.setRoles(roles);
         periodistaService.savePeriodista(periodista);
-        
-        return new ResponseEntity( new Mensaje("Periodista creado"), HttpStatus.OK);
+
+        return new ResponseEntity(new Mensaje("Periodista creado"), HttpStatus.OK);
     }
-    
+
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id){
-        if(!periodistaService.existsById(id)){
+    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+        if (!periodistaService.existsById(id)) {
             return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
         }
+
+        //validar el hecho de que tenga noticias asociadas a la entidad periodista
         
         periodistaService.deletePeriodista(id);
-        
-        return new ResponseEntity(new Mensaje("Periodista eliminado"), HttpStatus.OK);  
-        
-    }
-}
 
+        return new ResponseEntity(new Mensaje("Periodista eliminado"), HttpStatus.OK);
+
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Usuario> upDate(@PathVariable("id") int id, @RequestBody dtoPeriodista dtoPerio) {
+
+        if (!periodistaService.existsById(id)) {
+            return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (periodistaService.existsByNombreUsuario(dtoPerio.getNombreUsuario()) && periodistaService.getByNombreUsuario(dtoPerio.getNombreUsuario()).get().getId() != id) {
+            return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_GATEWAY);
+        }
+
+        if (periodistaService.existsByEmail(dtoPerio.getEmail()) && periodistaService.getByEmail(dtoPerio.getEmail()).get().getId() != id) {
+            return new ResponseEntity(new Mensaje("Este email ya existe"), HttpStatus.BAD_GATEWAY);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getNombre())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getNombreUsuario())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre de periodista"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getPassword())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nuevo password"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getEmail())) {
+            return new ResponseEntity(new Mensaje("Ingrese un mail"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (dtoPerio.getFechaNacimiento() == null) {
+            return new ResponseEntity(new Mensaje("Ingrese una fecha de nacimiento"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if(dtoPerio.getSueldo()!= 0){
+            return new ResponseEntity(new Mensaje("Ingrese un sueldo valido"), HttpStatus.BAD_REQUEST);
+        }
+
+        Periodista periodista = periodistaService.getOne(id);
+
+        periodista.setNombre(dtoPerio.getNombre());
+        periodista.setNombreUsuario(dtoPerio.getNombreUsuario());
+        periodista.setPassword(passwordEncoder.encode(dtoPerio.getPassword()));
+        periodista.setEmail(dtoPerio.getEmail());
+        periodista.setFechaNacimiento(dtoPerio.getFechaNacimiento());
+        periodista.setSueldo(dtoPerio.getSueldo());
+        periodistaService.savePeriodista(periodista);
+
+        return new ResponseEntity(new Mensaje("Periodista modificado"), HttpStatus.OK);
+    }
+
+}

@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -132,47 +134,66 @@ public class AuthController {
         return new ResponseEntity(new Mensaje("Usuario eliminado"), HttpStatus.OK);
     }
 
-//    @PutMapping("/update/{id}")
-//    public ResponseEntity<?> upDate(@PathVariable("id") int id, @RequestBody dtoUsuario dtoUsu) {
-//        if (!usuarioService.existsById(id)) {
-//            return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
-//        }
-//
-//        if (usuarioService.existsByNombreUsuario(dtoUsu.getNombreUsuario()) && usuarioService.getByNombreUsuario(dtoUsu.getNombreUsuario()).get().getId() != id) {
-//            return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_GATEWAY);
-//        }
-//
-//        if (StringUtils.isBlank(dtoUsu.getPassword())) {
-//            return new ResponseEntity(new Mensaje("Ingrese un nuevo password"), HttpStatus.BAD_REQUEST);
-//        }
-//        //probar si los password son iguales
-//
-//        Usuario usuario = usuarioService.getOne(id);
-//
-//        usuario.setNombreUsuario(dtoUsu.getNombreUsuario());
-//        usuario.setPassword(dtoUsu.getPassword());
-//
-//        usuarioService.save(usuario);
-//
-//        return new ResponseEntity(new Mensaje("usuario modificado"), HttpStatus.OK);
-//    }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Usuario> upDate(@PathVariable("id") int id, @RequestBody NuevoUsuario nuevoUsuario) {
+
+        if (!usuarioService.existsById(id)) {
+            return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (usuarioService.existsByNombreUsuario(nuevoUsuario.getNombreUsuario()) && usuarioService.getByNombreUsuario(nuevoUsuario.getNombreUsuario()).get().getId() != id) {
+            return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_GATEWAY);
+        }
+
+        if (usuarioService.existsByEmail(nuevoUsuario.getEmail()) && usuarioService.getByEmail(nuevoUsuario.getEmail()).get().getId() != id) {
+            return new ResponseEntity(new Mensaje("Este email ya existe"), HttpStatus.BAD_GATEWAY);
+        }
+
+        if (StringUtils.isBlank(nuevoUsuario.getNombre())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(nuevoUsuario.getNombreUsuario())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre de usuario"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(nuevoUsuario.getPassword())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nuevo password"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(nuevoUsuario.getEmail())) {
+            return new ResponseEntity(new Mensaje("Ingrese un mail"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (nuevoUsuario.getFechaNacimiento() == null) {
+            return new ResponseEntity(new Mensaje("Ingrese una fecha de nacimiento"), HttpStatus.BAD_REQUEST);
+        }
+        //probar si los password son iguales
+
+        Usuario usuario = usuarioService.getOne(id);
+
+        usuario.setNombre(nuevoUsuario.getNombre());
+        usuario.setNombreUsuario(nuevoUsuario.getNombreUsuario());
+        usuario.setPassword(passwordEncoder.encode(nuevoUsuario.getPassword()));
+        usuario.setEmail(nuevoUsuario.getEmail());
+        usuario.setFechaNacimiento(nuevoUsuario.getFechaNacimiento());
+        usuarioService.save(usuario);
+
+        return new ResponseEntity(new Mensaje("usuario modificado"), HttpStatus.OK);
+    }
 
     @GetMapping("/getOne/{nombreUsuario}")
-    public ResponseEntity<?> getOne(@PathVariable("nombreUsuario")String nombreUsuario){
-        
-        if(nombreUsuario.isEmpty()){
-            return new ResponseEntity(new Mensaje("Debe enviar un ombre de usuario"), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> getOne(@PathVariable("nombreUsuario") String nombreUsuario) {
+        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
+            return new ResponseEntity(new Mensaje("Debe enviar un nombre de usuario"), HttpStatus.BAD_REQUEST);
         }
-        
+
         Optional<Usuario> usuario = usuarioService.getByNombreUsuario(nombreUsuario);
-        
-        if(usuario.isPresent()){
+
+        if (usuario.isPresent()) {
             return new ResponseEntity(usuario, HttpStatus.OK);
         }
-        
-        return new ResponseEntity(new Mensaje("No se encuantra el usuario"), HttpStatus.BAD_REQUEST);
-    }
-    
-    }
-    
 
+        return new ResponseEntity(new Mensaje("Usuario no encontrado"), HttpStatus.BAD_REQUEST);
+    }
+}
