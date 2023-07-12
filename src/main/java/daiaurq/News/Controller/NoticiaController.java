@@ -46,7 +46,7 @@ public class NoticiaController {
         List<Noticia> listaNoticia = noticiaService.listaNoticias();
 
         if (listaNoticia.isEmpty()) {
-            return new ResponseEntity(new Mensaje("error"), HttpStatus.OK);
+            return new ResponseEntity(new Mensaje("error"), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity(listaNoticia, HttpStatus.OK);
     }
