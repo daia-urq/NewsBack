@@ -14,9 +14,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class dtoPeriodista extends NuevoUsuario {
-    
-    private List<Noticia> noticias;
+       
     @NotBlank
     private int sueldo;  
-
+    
+    List<Noticia> noticias;
 }

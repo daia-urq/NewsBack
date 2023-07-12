@@ -1,5 +1,6 @@
 package daiaurq.News.Security.Entity;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +31,8 @@ public class Usuario {
     
     private String nombre;
     
+    private String apellido;
+    
     @Column(unique = true)
     private String nombreUsuario;
     
@@ -41,8 +44,8 @@ public class Usuario {
     @JoinTable(name = "usuario_rol", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
     private Set<Rol> roles  = new HashSet<>();   
    
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date fechaNacimiento;        
+    @Column(columnDefinition = "DATE")
+    private LocalDate fechaNacimiento;
     
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaAlta;
@@ -50,11 +53,12 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(String nombre, String nombreUsuario, String email, String password, Date fechaNacimiento) {        
+    public Usuario(String nombre, String apellido, String nombreUsuario, String email, String password, LocalDate fechaNacimiento) {
         this.nombre = nombre;
+        this.apellido = apellido;
         this.nombreUsuario = nombreUsuario;
         this.email = email;
         this.password = password;
-        this.fechaNacimiento = fechaNacimiento;     
+        this.fechaNacimiento = fechaNacimiento;
     }
 }

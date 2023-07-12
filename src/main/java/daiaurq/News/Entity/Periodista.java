@@ -1,9 +1,11 @@
 package daiaurq.News.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import daiaurq.News.Security.Entity.Usuario;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -17,19 +19,19 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "periodistas")
-public class Periodista extends Usuario{
+public class Periodista extends Usuario {
 
-    @OneToMany
+    private int sueldo;
+    @OneToMany(mappedBy = "periodista", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Noticia> noticias;
-    private int sueldo;  
 
     public Periodista() {
     }
 
-    public Periodista(List<Noticia> noticias, int sueldo, String nombre, String nombreUsuario, String email, String password, Date fechaNacimiento) {
-        super(nombre, nombreUsuario, email, password, fechaNacimiento);
-        this.noticias = noticias;
+    public Periodista(int sueldo, List<Noticia> noticias, String nombre, String apellido, String nombreUsuario, String email, String password, LocalDate fechaNacimiento) {
+        super(nombre, apellido, nombreUsuario, email, password, fechaNacimiento);
         this.sueldo = sueldo;
-    }   
-    
+        this.noticias = noticias;
+    }
 }

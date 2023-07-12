@@ -74,7 +74,7 @@ public class AuthController {
         }
 
         Date date = new Date();
-        Usuario usuario = new Usuario(nuevoUsuario.getNombre(), nuevoUsuario.getNombreUsuario(), nuevoUsuario.getEmail(), passwordEncoder.encode(nuevoUsuario.getPassword()), nuevoUsuario.getFechaNacimiento());
+        Usuario usuario = new Usuario(nuevoUsuario.getNombre(), nuevoUsuario.getApellido(), nuevoUsuario.getNombreUsuario(), nuevoUsuario.getEmail(), passwordEncoder.encode(nuevoUsuario.getPassword()), nuevoUsuario.getFechaNacimiento());
 
         Set<Rol> roles = new HashSet<>();
 
@@ -152,6 +152,10 @@ public class AuthController {
         if (StringUtils.isBlank(nuevoUsuario.getNombre())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
         }
+        
+        if (StringUtils.isBlank(nuevoUsuario.getApellido())) {
+            return new ResponseEntity(new Mensaje("Ingrese un apellido"), HttpStatus.BAD_REQUEST);
+        }
 
         if (StringUtils.isBlank(nuevoUsuario.getNombreUsuario())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre de usuario"), HttpStatus.BAD_REQUEST);
@@ -173,6 +177,7 @@ public class AuthController {
         Usuario usuario = usuarioService.getOne(id);
 
         usuario.setNombre(nuevoUsuario.getNombre());
+        usuario.setApellido(nuevoUsuario.getApellido());
         usuario.setNombreUsuario(nuevoUsuario.getNombreUsuario());
         usuario.setPassword(passwordEncoder.encode(nuevoUsuario.getPassword()));
         usuario.setEmail(nuevoUsuario.getEmail());

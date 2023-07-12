@@ -1,11 +1,12 @@
 package daiaurq.News.Controller;
 
-
 import org.apache.commons.lang3.StringUtils;
 import daiaurq.News.Entity.Mensaje;
 import daiaurq.News.Entity.Noticia;
+import daiaurq.News.Entity.Periodista;
 import daiaurq.News.Service.CategoriaService;
 import daiaurq.News.Service.NoticiaService;
+import daiaurq.News.Service.PeriodistaService;
 import daiaurq.News.dto.dtoNoticia;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author daiau
  */
-
 @RestController
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 @RequestMapping("/noticia")
@@ -38,6 +38,8 @@ public class NoticiaController {
     NoticiaService noticiaService;
     @Autowired
     CategoriaService categoriaService;
+    @Autowired
+    PeriodistaService periodistaService;
 
     @GetMapping("/list")
     public ResponseEntity<List<Noticia>> listaNoticia() {
@@ -49,13 +51,12 @@ public class NoticiaController {
         return new ResponseEntity(listaNoticia, HttpStatus.OK);
     }
 
-    
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody dtoNoticia dtoNoti) throws Exception {
         if (StringUtils.isBlank(dtoNoti.getTitulo())) {
             return new ResponseEntity(new Mensaje("Debe ingresar un nombre para la noticia"), HttpStatus.BAD_REQUEST);
         }
-        if (StringUtils.isBlank(dtoNoti.getCuerpo())) {
+        if (dtoNoti.getCuerpo().isEmpty()) {
             return new ResponseEntity(new Mensaje("Debe ingresar un cuerpo para la noticia"), HttpStatus.BAD_REQUEST);
         }
 
@@ -66,7 +67,7 @@ public class NoticiaController {
         if (noticiaService.existsByTitulo(dtoNoti.getTitulo())) {
             return new ResponseEntity(new Mensaje("Ya existe esta noticia"), HttpStatus.BAD_REQUEST);
         }
-    
+
         if (!categoriaService.existsById(dtoNoti.getCategoria().getId())) {
             return new ResponseEntity(new Mensaje("No existe esta categoria"), HttpStatus.BAD_REQUEST);
         }
@@ -75,10 +76,16 @@ public class NoticiaController {
             return new ResponseEntity(new Mensaje("No existe nombre de categoria"), HttpStatus.BAD_REQUEST);
         }
 
+        if (dtoNoti.getCreador() < 0) {
+            return new ResponseEntity(new Mensaje("El id del periodista debe ser un numero valido"), HttpStatus.BAD_REQUEST);
+        }
+        
+        Periodista periodista = periodistaService.getOne(dtoNoti.getCreador());
+
         Date fecha;
         fecha = new Date();
 
-        Noticia noticia = new Noticia(dtoNoti.getTitulo(), dtoNoti.getCuerpo(), fecha, dtoNoti.getImagen(), dtoNoti.getCategoria());
+        Noticia noticia = new Noticia(dtoNoti.getTitulo(), dtoNoti.getCuerpo(), fecha, dtoNoti.getImagen(), dtoNoti.getCategoria(), periodista);
         noticiaService.saveNoticia(noticia);
 
         return new ResponseEntity(new Mensaje("Noticia creada"), HttpStatus.OK);
@@ -94,22 +101,21 @@ public class NoticiaController {
             return new ResponseEntity(new Mensaje("Ingrese un titulo"), HttpStatus.BAD_REQUEST);
         }
 
-        if (StringUtils.isBlank(dtoNoti.getCuerpo())) {
+        if (dtoNoti.getCuerpo().isEmpty()) {
             return new ResponseEntity(new Mensaje("Ingrese un cuerpo de noticia"), HttpStatus.BAD_REQUEST);
         }
 
         if (StringUtils.isBlank(dtoNoti.getImagen())) {
             return new ResponseEntity(new Mensaje("Ingrese una imagen para la noticia"), HttpStatus.BAD_REQUEST);
         }
-        
-        
+
         Optional<Noticia> noti = noticiaService.getByTitulo(dtoNoti.getTitulo());
-        
+
         //agregar validacion de si existe una noticia con ese titulo 
         if (noticiaService.existsByTitulo(dtoNoti.getTitulo()) && noti.get().getId() != id) {
             return new ResponseEntity(new Mensaje("Ya existe esta noticia"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (!categoriaService.existsById(dtoNoti.getCategoria().getId())) {
             return new ResponseEntity(new Mensaje("No existe esta categoria"), HttpStatus.BAD_REQUEST);
         }
@@ -118,6 +124,7 @@ public class NoticiaController {
             return new ResponseEntity(new Mensaje("No existe nombre de categoria"), HttpStatus.BAD_REQUEST);
         }
 
+        
         Noticia noticia = noticiaService.getOne(id).get();
         noticia.setTitulo(dtoNoti.getTitulo());
         noticia.setCuerpo(dtoNoti.getCuerpo());
@@ -130,7 +137,8 @@ public class NoticiaController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id){
+    public ResponseEntity<?> delete(@PathVariable("id") int id
+    ) {
         if (!noticiaService.existsById(id)) {
             return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
         }

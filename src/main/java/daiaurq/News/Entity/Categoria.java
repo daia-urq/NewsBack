@@ -36,8 +36,5 @@ public class Categoria {
     public Categoria(String nombre, List<Noticia> noticias) {
         this.nombre = nombre;
         this.noticias = noticias;
-    }
-    
-    
-    
+    }    
 }
