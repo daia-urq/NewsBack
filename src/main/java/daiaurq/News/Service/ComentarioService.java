@@ -19,11 +19,11 @@ public class ComentarioService {
     @Autowired
     ComentarioRepository comentarioRepository;
     
-    public List<Comentario> listaComentarioPorNoticia(int id){
+    public List<Object[]> listaComentarioPorNoticia(int id){
         return comentarioRepository.findByNoticiaId(id);
     }
     
-    public List<Comentario> listaComentarioPorUsuario(int id){
+    public List<?> listaComentarioPorUsuario(int id){
         return comentarioRepository.findByUsuarioId(id);
     }
     
@@ -45,5 +45,9 @@ public class ComentarioService {
     
     public boolean existsByNoticiaId(int id){
         return comentarioRepository.existsByNoticiaId(id);
+    }
+    
+    public boolean existsByUsuarioId(int id){
+        return comentarioRepository.existsByUsuarioId(id);
     }
 }

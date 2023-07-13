@@ -8,6 +8,8 @@ import daiaurq.News.Security.Service.UsuarioService;
 import daiaurq.News.Service.ComentarioService;
 import daiaurq.News.Service.NoticiaService;
 import daiaurq.News.dto.dtoComentario;
+import daiaurq.News.dto.dtoNoticia;
+import daiaurq.News.dto.dtoTexto;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,7 +50,17 @@ public class ComentarioController {
         if (!comentarioService.existsByNoticiaId(id)) {
             return new ResponseEntity(new Mensaje("no existen comentarios para esta noticia"), HttpStatus.BAD_REQUEST);
         }
-        List<Comentario> comentarios = comentarioService.listaComentarioPorNoticia(id);
+        List<?> comentarios = comentarioService.listaComentarioPorNoticia(id);
+        return new ResponseEntity(comentarios, HttpStatus.OK);
+    }
+    
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<Comentario>> comentarioPorUsuario(@PathVariable("id") int id) {
+
+        if (!comentarioService.existsByUsuarioId(id)) {
+            return new ResponseEntity(new Mensaje("no existen comentarios para este usuario"), HttpStatus.BAD_REQUEST);
+        }
+        List<?> comentarios = comentarioService.listaComentarioPorUsuario(id);
         return new ResponseEntity(comentarios, HttpStatus.OK);
     }
 
@@ -65,16 +79,16 @@ public class ComentarioController {
             return new ResponseEntity(new Mensaje("El id del usuario debe ser un numero valido"), HttpStatus.BAD_REQUEST);
         }
 
-        if (!noticiaService.existsById(dtoComen.getNoticia())) {
-            return new ResponseEntity(new Mensaje("Debe ingresar una noticia valida"), HttpStatus.BAD_REQUEST);
-        }
-
         if (!usuarioService.existsById(dtoComen.getUsuario())) {
-            return new ResponseEntity(new Mensaje("Debe ingresar un usuaio valido"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Mensaje("Debe ingresar un usuario valido"), HttpStatus.BAD_REQUEST);
         }
 
-        Usuario usuario = usuarioService.getOne(dtoComen.getUsuario());
+        if (!noticiaService.existsById(dtoComen.getNoticia())) {
+            return new ResponseEntity(new Mensaje("El ID noticia no existe"), HttpStatus.BAD_REQUEST);
+        }
+
         Noticia noticia = noticiaService.getOne(dtoComen.getNoticia()).get();
+        Usuario usuario = usuarioService.getOne(dtoComen.getUsuario());
 
         Date fecha;
         fecha = new Date();
@@ -83,5 +97,33 @@ public class ComentarioController {
         comentarioService.saveComentario(comentario);
 
         return new ResponseEntity(new Mensaje("Comentario creado"), HttpStatus.OK);
+    }
+    
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity delete(@PathVariable("id") int id ){
+        
+        if(!comentarioService.existsById(id)){
+            return new ResponseEntity(new Mensaje("No existe este comentario"), HttpStatus.BAD_REQUEST);
+        }
+        
+        comentarioService.deleteComentario(id);
+        return new ResponseEntity(new Mensaje("Comentario eliminado"), HttpStatus.OK);
+    }
+    
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody dtoTexto dtotxt) throws Exception { 
+        if(!comentarioService.existsById(id)){
+            return new ResponseEntity(new Mensaje("No existe este comentario"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if (StringUtils.isBlank(dtotxt.getTexto())) {
+            return new ResponseEntity(new Mensaje("Ingrese un comentario"), HttpStatus.BAD_REQUEST);
+        }
+        
+        Comentario comentario = comentarioService.findById(id).get();        
+        comentario.setComentario(dtotxt.getTexto());
+        comentarioService.saveComentario(comentario);
+
+        return new ResponseEntity(new Mensaje("Comentario editado"), HttpStatus.OK);
     }
 }
