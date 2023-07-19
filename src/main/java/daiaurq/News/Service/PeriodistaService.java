@@ -55,4 +55,7 @@ public class PeriodistaService {
         return periodistaRepository.getOne(id);
     }
     
+    public List<Integer> findIdPeriodistaSinNoticia(){
+        return periodistaRepository.findIdPeriodistaSinNoticias();
+    }
 }

@@ -61,10 +61,33 @@ public class AuthController {
 
     @PostMapping("/nuevo")
     public ResponseEntity<?> nuevo(@Valid @RequestBody NuevoUsuario nuevoUsuario, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity(new Mensaje("Campos mal puestos o email invalido"), HttpStatus.BAD_REQUEST);
+//        if (bindingResult.hasErrors()) {
+//            return new ResponseEntity(new Mensaje("Campos mal puestos"), HttpStatus.BAD_REQUEST);
+//        }
+        if (StringUtils.isBlank(nuevoUsuario.getNombre())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
         }
-
+        
+        if (StringUtils.isBlank(nuevoUsuario.getApellido())) {
+            return new ResponseEntity(new Mensaje("Ingrese un apellido"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if (StringUtils.isBlank(nuevoUsuario.getNombreUsuario())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre de usuario"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if (StringUtils.isBlank(nuevoUsuario.getEmail())) {
+            return new ResponseEntity(new Mensaje("Ingrese un email"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if (StringUtils.isBlank(nuevoUsuario.getPassword())) {
+            return new ResponseEntity(new Mensaje("Ingrese un password"), HttpStatus.BAD_REQUEST);
+        }
+        
+        if (nuevoUsuario.getFechaNacimiento() == null) {
+            return new ResponseEntity(new Mensaje("Ingrese una fecha de nacimiento"), HttpStatus.BAD_REQUEST);
+        }
+        
         if (usuarioService.existsByNombreUsuario(nuevoUsuario.getNombreUsuario())) {
             return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_REQUEST);
         }
@@ -72,7 +95,7 @@ public class AuthController {
         if (usuarioService.existsByEmail(nuevoUsuario.getEmail())) {
             return new ResponseEntity(new Mensaje("Este email de usuario ya existe"), HttpStatus.BAD_REQUEST);
         }
-
+        
         Date date = new Date();
         Usuario usuario = new Usuario(nuevoUsuario.getNombre(), nuevoUsuario.getApellido(), nuevoUsuario.getNombreUsuario(), nuevoUsuario.getEmail(), passwordEncoder.encode(nuevoUsuario.getPassword()), nuevoUsuario.getFechaNacimiento());
 
@@ -152,7 +175,7 @@ public class AuthController {
         if (StringUtils.isBlank(nuevoUsuario.getNombre())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (StringUtils.isBlank(nuevoUsuario.getApellido())) {
             return new ResponseEntity(new Mensaje("Ingrese un apellido"), HttpStatus.BAD_REQUEST);
         }

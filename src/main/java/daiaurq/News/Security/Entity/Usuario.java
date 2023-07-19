@@ -27,26 +27,26 @@ import lombok.Setter;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
+    private int id;    
     private String nombre;
-    
+   
     private String apellido;
-    
+  
     @Column(unique = true)
     private String nombreUsuario;
     
+   @Column(unique = true)
     private String email;
     
     private String password;
-    
+   
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuario_rol", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
-    private Set<Rol> roles  = new HashSet<>();   
-   
+     private Set<Rol> roles  = new HashSet<>();   
+    
     @Column(columnDefinition = "DATE")
     private LocalDate fechaNacimiento;
-    
+   
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaAlta;
 

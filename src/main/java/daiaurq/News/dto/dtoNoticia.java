@@ -1,7 +1,6 @@
 package daiaurq.News.dto;
 
 import daiaurq.News.Entity.Categoria;
-import daiaurq.News.Entity.Periodista;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.validation.constraints.NotBlank;

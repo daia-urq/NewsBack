@@ -2,6 +2,7 @@ package daiaurq.News.Security.Dto;
 
 import java.time.LocalDate;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,10 +24,9 @@ public class NuevoUsuario {
     private String email;
     @NotBlank
     private String password;
-    @NotBlank
+    @NotNull
     private LocalDate fechaNacimiento;
    
-    private String roles ;
-
+    private String roles;
 }    
 
