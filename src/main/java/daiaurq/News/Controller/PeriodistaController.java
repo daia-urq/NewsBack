@@ -7,6 +7,7 @@ import daiaurq.News.Security.Enums.RolNombre;
 import daiaurq.News.Security.Service.RolService;
 import daiaurq.News.Service.PeriodistaService;
 import daiaurq.News.dto.dtoPeriodista;
+import daiaurq.News.dto.dtoPeriodistaEdit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -56,10 +57,10 @@ public class PeriodistaController {
 
         return new ResponseEntity(periodistas, HttpStatus.OK);
     }
-    
+
     @GetMapping("/getOne/{nombreUsuario}")
     public ResponseEntity<Periodista> getOne(@PathVariable("nombreUsuario") String nombreUsuario) {
-        
+
         Optional<Periodista> periodista = periodistaService.getByNombreUsuario(nombreUsuario);
 
         if (periodista.isEmpty()) {
@@ -69,11 +70,56 @@ public class PeriodistaController {
         return new ResponseEntity(periodista, HttpStatus.OK);
     }
 
+    @GetMapping("/getOneid/{id}")
+    public ResponseEntity<Periodista> getOneID(@PathVariable("id") int id) {
+        if (id <= 0) {
+            return new ResponseEntity(new Mensaje("El id debe ser un numero válido"), HttpStatus.BAD_REQUEST);
+        }
+        Periodista periodista = periodistaService.findById(id);
+
+        if (periodista == null) {
+            return new ResponseEntity(new Mensaje("No existe un periodista con este Id"), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(periodista, HttpStatus.OK);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Periodista> create(@RequestBody dtoPeriodista dtoPerio, BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity(new Mensaje("Campos mal puestos o email invalido"), HttpStatus.BAD_REQUEST);
+//        if (bindingResult.hasErrors()) {
+//            return new ResponseEntity(new Mensaje("Campos mal puestos o email invalido"), HttpStatus.BAD_REQUEST);
+//        }
+        if (StringUtils.isBlank(dtoPerio.getNombre())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getApellido())) {
+            return new ResponseEntity(new Mensaje("Ingrese un apellido"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getNombreUsuario())) {
+            return new ResponseEntity(new Mensaje("Ingrese un nombre de usuario"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getEmail())) {
+            return new ResponseEntity(new Mensaje("Ingrese un email"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (StringUtils.isBlank(dtoPerio.getPassword())) {
+            return new ResponseEntity(new Mensaje("Ingrese un password"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (dtoPerio.getFechaNacimiento() == null) {
+            return new ResponseEntity(new Mensaje("Ingrese una fecha de nacimiento"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (periodistaService.existsByNombreUsuario(dtoPerio.getNombreUsuario())) {
+            return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_REQUEST);
+        }
+
+        if (periodistaService.existsByEmail(dtoPerio.getEmail())) {
+            return new ResponseEntity(new Mensaje("Este email de usuario ya existe"), HttpStatus.BAD_REQUEST);
         }
 
         if (periodistaService.existsByNombreUsuario(dtoPerio.getNombreUsuario())) {
@@ -111,7 +157,6 @@ public class PeriodistaController {
         // Validar si el periodista tiene noticias asociadas
         List<Integer> periodistasSinNoticias = periodistaService.findIdPeriodistaSinNoticia();
 
-        
         if (!periodistasSinNoticias.contains(id)) {
             return new ResponseEntity(new Mensaje("Este periodista tiene noticias asociadas"), HttpStatus.BAD_REQUEST);
         }
@@ -122,7 +167,7 @@ public class PeriodistaController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Periodista> upDate(@PathVariable("id") int id, @RequestBody dtoPeriodista dtoPerio) {
+    public ResponseEntity<Periodista> upDate(@PathVariable("id") int id, @RequestBody dtoPeriodistaEdit dtoPerio) {
 
         if (!periodistaService.existsById(id)) {
             return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
@@ -148,10 +193,6 @@ public class PeriodistaController {
             return new ResponseEntity(new Mensaje("Ingrese un apellido de periodista"), HttpStatus.BAD_REQUEST);
         }
 
-        if (StringUtils.isBlank(dtoPerio.getPassword())) {
-            return new ResponseEntity(new Mensaje("Ingrese un nuevo password"), HttpStatus.BAD_REQUEST);
-        }
-
         if (StringUtils.isBlank(dtoPerio.getEmail())) {
             return new ResponseEntity(new Mensaje("Ingrese un mail"), HttpStatus.BAD_REQUEST);
         }
@@ -164,12 +205,19 @@ public class PeriodistaController {
             return new ResponseEntity(new Mensaje("Ingrese un sueldo valido"), HttpStatus.BAD_REQUEST);
         }
 
-        Periodista periodista = periodistaService.getOne(id);
+        Periodista periodista = periodistaService.findById(id);
+
+        if (dtoPerio.getPassword() != null) {
+            if (!dtoPerio.getPassword().isEmpty()) {
+                periodista.setPassword(passwordEncoder.encode(dtoPerio.getPassword()));
+            } else {
+                return new ResponseEntity(new Mensaje("Ingrese una contraseña"), HttpStatus.BAD_REQUEST);
+            }
+        }
 
         periodista.setNombre(dtoPerio.getNombre());
         periodista.setApellido(dtoPerio.getApellido());
         periodista.setNombreUsuario(dtoPerio.getNombreUsuario());
-        periodista.setPassword(passwordEncoder.encode(dtoPerio.getPassword()));
         periodista.setEmail(dtoPerio.getEmail());
         periodista.setFechaNacimiento(dtoPerio.getFechaNacimiento());
         periodista.setSueldo(dtoPerio.getSueldo());

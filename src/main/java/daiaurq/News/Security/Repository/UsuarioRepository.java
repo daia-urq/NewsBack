@@ -1,8 +1,10 @@
 package daiaurq.News.Security.Repository;
 
 import daiaurq.News.Security.Entity.Usuario;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -21,5 +23,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer>{
     boolean existsByEmail(String email);
     
     Usuario getOne(int id);  
-    
+        
+     @Query("SELECT u " +
+           "FROM Usuario u " +
+           "INNER JOIN u.roles r " +
+           "WHERE r.id = 1")
+     List<Usuario> findUsuariosByRolId();
 }

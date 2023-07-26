@@ -10,9 +10,10 @@ import daiaurq.News.Security.Enums.RolNombre;
 import daiaurq.News.Security.Service.RolService;
 import daiaurq.News.Security.Service.UsuarioService;
 import daiaurq.News.Security.jwt.JwtProvider;
+import daiaurq.News.dto.DtoUsuarioEdit;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -67,27 +68,27 @@ public class AuthController {
         if (StringUtils.isBlank(nuevoUsuario.getNombre())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (StringUtils.isBlank(nuevoUsuario.getApellido())) {
             return new ResponseEntity(new Mensaje("Ingrese un apellido"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (StringUtils.isBlank(nuevoUsuario.getNombreUsuario())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre de usuario"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (StringUtils.isBlank(nuevoUsuario.getEmail())) {
             return new ResponseEntity(new Mensaje("Ingrese un email"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (StringUtils.isBlank(nuevoUsuario.getPassword())) {
             return new ResponseEntity(new Mensaje("Ingrese un password"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (nuevoUsuario.getFechaNacimiento() == null) {
             return new ResponseEntity(new Mensaje("Ingrese una fecha de nacimiento"), HttpStatus.BAD_REQUEST);
         }
-        
+
         if (usuarioService.existsByNombreUsuario(nuevoUsuario.getNombreUsuario())) {
             return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_REQUEST);
         }
@@ -95,7 +96,7 @@ public class AuthController {
         if (usuarioService.existsByEmail(nuevoUsuario.getEmail())) {
             return new ResponseEntity(new Mensaje("Este email de usuario ya existe"), HttpStatus.BAD_REQUEST);
         }
-        
+
         Date date = new Date();
         Usuario usuario = new Usuario(nuevoUsuario.getNombre(), nuevoUsuario.getApellido(), nuevoUsuario.getNombreUsuario(), nuevoUsuario.getEmail(), passwordEncoder.encode(nuevoUsuario.getPassword()), nuevoUsuario.getFechaNacimiento());
 
@@ -114,6 +115,17 @@ public class AuthController {
         usuarioService.save(usuario);
 
         return new ResponseEntity(new Mensaje("Usuario guardado"), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<Usuario>> listaPeriodistas(){
+        List<Usuario> usuarios = usuarioService.listaUsuarios();
+
+        if (usuarios.isEmpty()) {
+            return new ResponseEntity(new Mensaje("Lista de usuarios vacia"), HttpStatus.OK);
+        }
+
+        return new ResponseEntity(usuarios, HttpStatus.OK);
     }
 
     @PostMapping("/login")
@@ -158,53 +170,54 @@ public class AuthController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Usuario> upDate(@PathVariable("id") int id, @RequestBody NuevoUsuario nuevoUsuario) {
+    public ResponseEntity<Usuario> upDate(@PathVariable("id") int id, @RequestBody DtoUsuarioEdit dtoUsuario) {
 
         if (!usuarioService.existsById(id)) {
             return new ResponseEntity(new Mensaje("El ID no existe"), HttpStatus.BAD_REQUEST);
         }
 
-        if (usuarioService.existsByNombreUsuario(nuevoUsuario.getNombreUsuario()) && usuarioService.getByNombreUsuario(nuevoUsuario.getNombreUsuario()).get().getId() != id) {
+        if (usuarioService.existsByNombreUsuario(dtoUsuario.getNombreUsuario()) && usuarioService.getByNombreUsuario(dtoUsuario.getNombreUsuario()).get().getId() != id) {
             return new ResponseEntity(new Mensaje("Este nombre de usuario ya existe"), HttpStatus.BAD_GATEWAY);
         }
 
-        if (usuarioService.existsByEmail(nuevoUsuario.getEmail()) && usuarioService.getByEmail(nuevoUsuario.getEmail()).get().getId() != id) {
+        if (usuarioService.existsByEmail(dtoUsuario.getEmail()) && usuarioService.getByEmail(dtoUsuario.getEmail()).get().getId() != id) {
             return new ResponseEntity(new Mensaje("Este email ya existe"), HttpStatus.BAD_GATEWAY);
         }
 
-        if (StringUtils.isBlank(nuevoUsuario.getNombre())) {
+        if (StringUtils.isBlank(dtoUsuario.getNombre())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre"), HttpStatus.BAD_REQUEST);
         }
 
-        if (StringUtils.isBlank(nuevoUsuario.getApellido())) {
+        if (StringUtils.isBlank(dtoUsuario.getApellido())) {
             return new ResponseEntity(new Mensaje("Ingrese un apellido"), HttpStatus.BAD_REQUEST);
         }
 
-        if (StringUtils.isBlank(nuevoUsuario.getNombreUsuario())) {
+        if (StringUtils.isBlank(dtoUsuario.getNombreUsuario())) {
             return new ResponseEntity(new Mensaje("Ingrese un nombre de usuario"), HttpStatus.BAD_REQUEST);
         }
 
-        if (StringUtils.isBlank(nuevoUsuario.getPassword())) {
-            return new ResponseEntity(new Mensaje("Ingrese un nuevo password"), HttpStatus.BAD_REQUEST);
-        }
-
-        if (StringUtils.isBlank(nuevoUsuario.getEmail())) {
+        if (StringUtils.isBlank(dtoUsuario.getEmail())) {
             return new ResponseEntity(new Mensaje("Ingrese un mail"), HttpStatus.BAD_REQUEST);
         }
 
-        if (nuevoUsuario.getFechaNacimiento() == null) {
+        if (dtoUsuario.getFechaNacimiento() == null) {
             return new ResponseEntity(new Mensaje("Ingrese una fecha de nacimiento"), HttpStatus.BAD_REQUEST);
         }
-        //probar si los password son iguales
-
         Usuario usuario = usuarioService.getOne(id);
 
-        usuario.setNombre(nuevoUsuario.getNombre());
-        usuario.setApellido(nuevoUsuario.getApellido());
-        usuario.setNombreUsuario(nuevoUsuario.getNombreUsuario());
-        usuario.setPassword(passwordEncoder.encode(nuevoUsuario.getPassword()));
-        usuario.setEmail(nuevoUsuario.getEmail());
-        usuario.setFechaNacimiento(nuevoUsuario.getFechaNacimiento());
+        if (dtoUsuario.getPassword() != null) {
+            if (!dtoUsuario.getPassword().isEmpty()) {
+                usuario.setPassword(passwordEncoder.encode(dtoUsuario.getPassword()));
+            } else {
+                return new ResponseEntity(new Mensaje("Ingrese una contraseña"), HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        usuario.setNombre(dtoUsuario.getNombre());
+        usuario.setApellido(dtoUsuario.getApellido());
+        usuario.setNombreUsuario(dtoUsuario.getNombreUsuario());
+        usuario.setEmail(dtoUsuario.getEmail());
+        usuario.setFechaNacimiento(dtoUsuario.getFechaNacimiento());
         usuarioService.save(usuario);
 
         return new ResponseEntity(new Mensaje("usuario modificado"), HttpStatus.OK);
@@ -216,9 +229,9 @@ public class AuthController {
             return new ResponseEntity(new Mensaje("Debe enviar un nombre de usuario"), HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Usuario> usuario = usuarioService.getByNombreUsuario(nombreUsuario);
+        Usuario usuario = usuarioService.getByNombreUsuario(nombreUsuario).get();
 
-        if (usuario.isPresent()) {
+        if (usuario != null) {
             return new ResponseEntity(usuario, HttpStatus.OK);
         }
 

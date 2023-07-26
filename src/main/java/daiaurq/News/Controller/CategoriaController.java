@@ -73,7 +73,7 @@ public class CategoriaController {
         Categoria categoria = categoriaService.getOne(id);
 
         if (!categoriasVacias.contains(categoria)) {
-            return new ResponseEntity(new Mensaje("Esta categoria tiene noticias asociadas"), HttpStatus.OK);
+            return new ResponseEntity(new Mensaje("Esta categoria tiene noticias asociadas"), HttpStatus.BAD_REQUEST);
         }
 
         categoriaService.deleteNoticia(id);

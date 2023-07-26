@@ -51,8 +51,8 @@ public class PeriodistaService {
        return periodistaRepository.existsById(id);
     }
     
-    public Periodista getOne(int id){
-        return periodistaRepository.getOne(id);
+    public Periodista findById(int id){
+        return periodistaRepository.findById(id);
     }
     
     public List<Integer> findIdPeriodistaSinNoticia(){

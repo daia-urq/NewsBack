@@ -20,7 +20,7 @@ public interface PeriodistaRepository extends JpaRepository<Periodista, Integer>
 
     Optional<Periodista> findByEmail(String email);
 
-    Periodista getOne(int id);
+    Periodista findById(int id);
 
     @Query("SELECT p.id FROM Periodista p " +
            "LEFT JOIN p.noticias n " +

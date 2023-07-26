@@ -80,7 +80,7 @@ public class NoticiaController {
             return new ResponseEntity(new Mensaje("El id del periodista debe ser un numero valido"), HttpStatus.BAD_REQUEST);
         }
         
-        Periodista periodista = periodistaService.getOne(dtoNoti.getCreador());
+        Periodista periodista = periodistaService.findById(dtoNoti.getCreador());
 
         Date fecha;
         fecha = new Date();

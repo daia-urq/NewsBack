@@ -42,13 +42,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         } catch (UsernameNotFoundException e) {
             logger.error("Falló el metodo doFilterInternal");
         }
+        HttpServletResponse responses = (HttpServletResponse) response;
+        responses.setHeader("Access-Control-Allow-Origin", "*");
+        responses.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT");
+        
         filterChain.doFilter(request, response);
     }
     
     private String getToken(HttpServletRequest request){
         String header = request.getHeader("Authorization");
         if(header != null && header.startsWith("Bearer"))
-            return header.replace("Bearer", "");
+           return header.replace("Bearer", "").trim();
         return null;
     }
 }
